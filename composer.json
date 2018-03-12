@@ -1,5 +1,5 @@
 {
-    "name": "silber/page-cache",
+    "name": "ckdot/page-cache",
     "description": "Caches responses as static files on disk for lightning fast page loads..",
     "keywords": ["laravel", "cache"],
     "license": "MIT",
@@ -7,6 +7,10 @@
         {
             "name": "Joseph Silber",
             "email": "contact@josephsilber.com"
+        },
+        {
+            "name": "Christian Kilb",
+            "email": "contact@cilb.de"
         }
     ],
     "autoload": {
