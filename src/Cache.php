@@ -2,7 +2,6 @@
 
 namespace Silber\PageCache;
 
-use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\HttpFoundation\Request;
