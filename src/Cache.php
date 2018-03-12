@@ -70,15 +70,13 @@ class Cache
      *
      * @param  string  $path
      * @return string
-     *
-     * @throws \Exception
      */
     public function getCachePath($path = '')
     {
         $base = $this->cachePath ? $this->cachePath : $this->getDefaultCachePath();
 
         if (is_null($base)) {
-            throw new Exception('Cache path not set.');
+            return sys_get_temp_dir();
         }
 
         return $base.'/'.($path ? trim($path, '/').'/' : $path);
@@ -87,7 +85,7 @@ class Cache
     /**
      * Caches the given response if we determine that it should be cache.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $response
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
      * @return $this
      */
@@ -103,19 +101,31 @@ class Cache
     /**
      * Determines whether the given request/response pair should be cached.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $response
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
      * @return bool
      */
     public function shouldCache(Request $request, Response $response)
     {
-        return $request->isMethod('GET') && $response->getStatusCode() == 200;
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            return false;
+        }
+
+        if ($request->getQueryString()) {
+            return false;
+        }
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
      * Cache the response to a file.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $response
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
      * @return void
      */
@@ -148,7 +158,11 @@ class Cache
     {
         $segments = explode('/', ltrim($request->getPathInfo(), '/'));
 
-        $file = $this->aliasFilename(array_pop($segments)).'.html';
+        $file = sprintf(
+            '%s-%s.html',
+            $this->aliasFilename(array_pop($segments)),
+            $request->getQueryString()
+        );
 
         return [$this->getCachePath(implode('/', $segments)), $file];
     }
